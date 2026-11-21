@@ -22,6 +22,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    buildFeatures {
+        resValues = true
+    }
+
     flavorDimensions += "flavor-type"
     productFlavors {
         create("foss") {
