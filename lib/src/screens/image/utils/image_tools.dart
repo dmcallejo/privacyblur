@@ -112,7 +112,6 @@ class ImgTools {
       try {
         directory.create(recursive: true);
         // The bytes are already JPEG encoded (see save2Gallery).
-        if (!await Gal.hasAccess() && !await Gal.requestAccess()) return false;
         await Gal.putImageBytes(bytes, name: fileName);
         saved = true;
       } catch (e) {
