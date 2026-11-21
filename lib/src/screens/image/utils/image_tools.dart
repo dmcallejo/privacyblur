@@ -8,7 +8,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_exif_rotation/flutter_exif_rotation.dart';
 import 'package:image/image.dart' as img_external;
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+import 'package:gal/gal.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -111,8 +111,8 @@ class ImgTools {
       Directory directory = Directory(tempDir);
       try {
         directory.create(recursive: true);
-        await ImageGallerySaver.saveImage(bytes,
-            quality: ImgConst.imgQuality, name: fileName);
+        // The bytes are already JPEG encoded (see save2Gallery).
+        await Gal.putImageBytes(bytes, name: fileName);
         saved = true;
       } catch (e) {
         if (kDebugMode) {

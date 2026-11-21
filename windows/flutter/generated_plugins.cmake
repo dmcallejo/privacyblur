@@ -5,6 +5,7 @@
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_window
   file_selector_windows
+  gal
   permission_handler_windows
   url_launcher_windows
 )
