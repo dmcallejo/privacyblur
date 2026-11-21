@@ -26,7 +26,7 @@ jobs:
       # errors and warnings fail the build for now.
       - run: flutter analyze --no-fatal-infos --no-fatal-warnings
       - run: flutter test --exclude-tags benchmark
-      - run: flutter build apk --debug -t lib/main_foss.dart
+      - run: flutter build apk --debug --flavor foss -t lib/main_foss.dart
 
   benchmarks:
     name: Speed benchmarks (informational)
