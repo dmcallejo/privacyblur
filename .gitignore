@@ -56,3 +56,4 @@ android/json-secret.json
 
 # fastlane
 fastlane/report.xml
+ios/Flutter/ephemeral/
