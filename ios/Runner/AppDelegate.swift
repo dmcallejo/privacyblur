@@ -4,20 +4,26 @@ import Foundation
 import MLKitFaceDetection
 import MLKitVision
 
-@UIApplicationMain
-@objc class AppDelegate: FlutterAppDelegate {
+@main
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
+    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
+  }
 
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+    GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    registerChannels(messenger: engineBridge.applicationRegistrar.messenger())
+  }
+
+  private func registerChannels(messenger: FlutterBinaryMessenger) {
     let HEAP_SIZE_CHANNEL = "de.mathema.privacyblur/memory";
     let FACE_DETECTION_CHANNEL = "de.mathema.privacyblur/face_detection";
 
-    let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
-    let heapSizeChannel = FlutterMethodChannel(name: HEAP_SIZE_CHANNEL, binaryMessenger: controller.binaryMessenger)
-    let faceDetectionChannel = FlutterMethodChannel(name: FACE_DETECTION_CHANNEL, binaryMessenger: controller.binaryMessenger)
+    let heapSizeChannel = FlutterMethodChannel(name: HEAP_SIZE_CHANNEL, binaryMessenger: messenger)
+    let faceDetectionChannel = FlutterMethodChannel(name: FACE_DETECTION_CHANNEL, binaryMessenger: messenger)
 
     heapSizeChannel.setMethodCallHandler({
       [weak self] (call: FlutterMethodCall, result: FlutterResult) -> Void in
@@ -41,8 +47,6 @@ import MLKitVision
         return
       }
     })
-
-    return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   private func detectFaces(call: FlutterMethodCall, result: @escaping FlutterResult) {
