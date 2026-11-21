@@ -7,13 +7,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_translate/flutter_translate.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:menubar/menubar.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:privacyblur/resources/localization/keys.dart';
 import 'package:privacyblur/src/data/services/local_storage.dart';
 import 'package:privacyblur/src/di.dart';
 import 'package:privacyblur/src/router.dart';
 import 'package:privacyblur/src/screens/main/utils/image_picking.dart';
+import 'package:privacyblur/src/utils/desktop_config.dart';
 import 'package:privacyblur/src/screens/main/widgets/version_number.dart';
 import 'package:privacyblur/src/utils/layout_config.dart';
 import 'package:privacyblur/src/widgets/adaptive_widgets_builder.dart';
@@ -42,13 +42,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance?.addObserver(this);
+    WidgetsBinding.instance.addObserver(this);
     _showLastImageDialog(context);
   }
 
   @override
   void dispose() {
-    WidgetsBinding.instance?.removeObserver(this);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -94,7 +94,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                     translate(Keys.Main_Screen_Content),
                     style: TextStyle(
                         fontSize:
-                            Theme.of(context).textTheme.headline6!.fontSize,
+                            Theme.of(context).textTheme.titleLarge!.fontSize,
                         fontWeight: FontWeight.bold,
                         color: textColor),
                     textAlign: TextAlign.center,
@@ -144,12 +144,12 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   void _loadDesktopMenu() {
-    LayoutConfig.desktop.updateMenu(key: menuKey, menus: [
-      Submenu(label: translate(Keys.Main_Screen_Menu_Title), children: [
-        MenuItem(
+    LayoutConfig.desktop.updateMenu(key: menuKey, extraMenus: [
+      DesktopMenu(label: translate(Keys.Main_Screen_Menu_Title), entries: [
+        DesktopMenuEntry(
             label: translate(Keys.Main_Screen_Select_Image),
-            onClicked: () => openImageAction(context, ImageSource.gallery),
-            shortcut: LogicalKeySet(LogicalKeyboardKey.keyO))
+            onSelected: () => openImageAction(context, ImageSource.gallery),
+            shortcut: const SingleActivator(LogicalKeyboardKey.keyO))
       ])
     ]);
   }

@@ -64,12 +64,13 @@ class ImgTools {
     try {
       String? selectedDirectory; // desktop only
       if (AppTheme.isDesktop) {
-        selectedDirectory = await FilePicker.platform.getDirectoryPath();
+        selectedDirectory = await FilePicker.getDirectoryPath();
       }
       String? temporaryDirectoryPath = (await getTemporaryDirectory()).path;
       fileName = _createFileName(needOverride);
       Uint8List imageBytes = Uint8List.fromList(img_external
-          .encodeJpg(img_external.Image.fromBytes(width, height, raw)));
+          .encodeJpg(img_external.Image.fromBytes(
+              width: width, height: height, bytes: raw.buffer, numChannels: 4)));
       saved = await _writeFile(
           bytes: imageBytes,
           tempDir: temporaryDirectoryPath,
