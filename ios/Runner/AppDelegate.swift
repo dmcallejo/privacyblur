@@ -19,8 +19,8 @@ import MLKitVision
   }
 
   private func registerChannels(messenger: FlutterBinaryMessenger) {
-    let HEAP_SIZE_CHANNEL = "de.mathema.privacyblur/memory";
-    let FACE_DETECTION_CHANNEL = "de.mathema.privacyblur/face_detection";
+    let HEAP_SIZE_CHANNEL = "com.dmcallejo.privacyblur/memory";
+    let FACE_DETECTION_CHANNEL = "com.dmcallejo.privacyblur/face_detection";
 
     let heapSizeChannel = FlutterMethodChannel(name: HEAP_SIZE_CHANNEL, binaryMessenger: messenger)
     let faceDetectionChannel = FlutterMethodChannel(name: FACE_DETECTION_CHANNEL, binaryMessenger: messenger)

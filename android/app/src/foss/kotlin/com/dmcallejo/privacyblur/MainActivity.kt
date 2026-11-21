@@ -1,4 +1,4 @@
-package de.mathema.privacyblur
+package com.dmcallejo.privacyblur
 
 import androidx.annotation.NonNull
 import io.flutter.embedding.android.FlutterActivity
@@ -6,7 +6,7 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "de.mathema.privacyblur/memory"
+    private val CHANNEL = "com.dmcallejo.privacyblur/memory"
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
