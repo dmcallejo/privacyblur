@@ -14,7 +14,8 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "de.mathema.privacyblur"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android needs API 37; compileSdk is backward compatible.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
