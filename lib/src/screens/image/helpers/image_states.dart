@@ -29,6 +29,7 @@ class ImageStateScreen extends ImageStateBase {
   List<FilterPosition> positions = List.empty(growable: true);
   int selectedFilterIndex = -1;
   bool resizeFilterMode = false;
+  bool rotateFilterMode = false;
   bool savedOnce = false;
 
   // maybe remove from bloc in next version. ...Why?
@@ -47,6 +48,7 @@ class ImageStateScreen extends ImageStateBase {
     positions.clear();
     selectedFilterIndex = -1;
     resizeFilterMode = false;
+    rotateFilterMode = false;
   }
 
   void positionsUpdateOrder() {
@@ -94,6 +96,7 @@ class ImageStateScreen extends ImageStateBase {
     }
     selectedFilterIndex = index;
     resizeFilterMode = false;
+    rotateFilterMode = false;
   }
 
   bool addFaces(Faces arr) {
@@ -116,6 +119,7 @@ class ImageStateScreen extends ImageStateBase {
       ..maxPower = maxPower
       ..selectedFilterIndex = selectedFilterIndex
       ..resizeFilterMode = resizeFilterMode
+      ..rotateFilterMode = rotateFilterMode
       ..positions = [...positions]
       ..savedOnce = savedOnce
       ..maxRadius = maxRadius;

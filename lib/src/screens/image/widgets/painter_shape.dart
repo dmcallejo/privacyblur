@@ -19,6 +19,7 @@ class ShapePainter extends CustomPainter {
       _hash += (p.isRounded ? 7879 : 9341) +
           selectedPosition * 8467 +
           (p.getVisibleRadius() * 14557).toInt() +
+          (p.rotation * 1000).toInt() * 4079 +
           p.posX.toInt() +
           p.posY.toInt() * 12347;
     }
@@ -84,6 +85,24 @@ class ShapePainter extends CustomPainter {
     //additional drawing for resizing rect area is here...
   }
 
+  void _drawRotationHandle(
+      Canvas canvas, FilterPosition position, Color color) {
+    var handle = position.getRotationHandlePosition(pixelsInDP);
+    var line = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawLine(position.getRotationStemStart(), handle, line);
+    canvas.drawCircle(handle, 5 * pixelsInDP, Paint()..color = color);
+    canvas.drawCircle(
+        handle,
+        5 * pixelsInDP,
+        Paint()
+          ..color = Colors.white54
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 0.5);
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     positions.asMap().forEach((index, position) {
@@ -101,6 +120,10 @@ class ShapePainter extends CustomPainter {
         _drawCircle(
             canvas, position.posX, position.posY, radius - 2, colorBorderInner);
       } else {
+        canvas.save();
+        canvas.translate(position.posX, position.posY);
+        canvas.rotate(position.rotation);
+        canvas.translate(-position.posX, -position.posY);
         _drawRect(
             canvas,
             position.posX,
@@ -115,11 +138,13 @@ class ShapePainter extends CustomPainter {
             position.getVisibleWidth() - 2,
             position.getVisibleHeight() - 2,
             colorBorderInner);
+        canvas.restore();
       }
       // for resizing circles just remove this condition - (!position.isRounded)
       if ((!position.isRounded) && (index == selectedPosition)) {
         _drawDragRect(
             canvas, position.getResizingAreaRect(pixelsInDP), colorBorder);
+        _drawRotationHandle(canvas, position, colorBorder);
       }
     });
     if (selectedPosition < 0 || selectedPosition >= positions.length) {

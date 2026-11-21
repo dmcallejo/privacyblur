@@ -96,12 +96,15 @@ class ImageAppFilter {
     _cancelArea(range);
   }
 
-  void cancelSquare(int centerX, int centerY, int width, int height) {
-    if (!_imgChannels.transactionActive) return;
-    if (_allCanceled) return;
+  RangeHelper _squareRange(
+      int centerX, int centerY, int width, int height, double rotation) {
+    if (rotation != 0) {
+      return RangeHelper.rotatedSquare(centerX, centerY, width, height,
+          rotation, _imgChannels.imageWidth, _imgChannels.imageHeight, 0);
+    }
     var halfWidth = width ~/ 2;
     var halfHeight = height ~/ 2;
-    RangeHelper range = RangeHelper.square(
+    return RangeHelper.square(
         centerX - halfWidth,
         centerY - halfHeight,
         centerX + halfWidth,
@@ -109,7 +112,13 @@ class ImageAppFilter {
         _imgChannels.imageWidth,
         _imgChannels.imageHeight,
         0);
-    _cancelArea(range);
+  }
+
+  void cancelSquare(int centerX, int centerY, int width, int height,
+      [double rotation = 0]) {
+    if (!_imgChannels.transactionActive) return;
+    if (_allCanceled) return;
+    _cancelArea(_squareRange(centerX, centerY, width, height, rotation));
   }
 
   void apply2Circle(int centerX, int centerY, int radius) {
@@ -122,18 +131,11 @@ class ImageAppFilter {
     needRebuild = true;
   }
 
-  void apply2Square(int centerX, int centerY, int width, int height) {
+  void apply2Square(int centerX, int centerY, int width, int height,
+      [double rotation = 0]) {
     if (!_imgChannels.transactionActive) return;
-    var halfWidth = width ~/ 2;
-    var halfHeight = height ~/ 2;
-    RangeHelper range = RangeHelper.square(
-        centerX - halfWidth,
-        centerY - halfHeight,
-        centerX + halfWidth,
-        centerY + halfHeight,
-        _imgChannels.imageWidth,
-        _imgChannels.imageHeight,
-        0);
+    RangeHelper range =
+        _squareRange(centerX, centerY, width, height, rotation);
     _activeMatrix.calculateInRange(range, _imgChannels);
     _allCanceled = false;
     _imgChannels.collectRange(range);
