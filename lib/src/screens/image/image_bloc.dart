@@ -47,6 +47,7 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
     on<ImageEventShapeRounded>(filterShapeChanged);
     on<ImageEventDetectFaces>(detectFaces);
     on<ImageEventTopRight>(resizeCurrentFilter);
+    on<ImageEventRotate>(rotateCurrentFilter);
     on<_yieldStateInternally>((state, emit) => emit(_blocState.clone()));
   }
 
@@ -89,6 +90,7 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
   FutureOr<void> saveImage(
       ImageEventSave2Disk event, Emitter<ImageStateBase?> emit) async {
     _blocState.resizeFilterMode = false;
+    _blocState.rotateFilterMode = false;
     await imageOperationsHelper.saveImage(
         _blocState, imgTools, event.needOverride);
     if (_blocState.isImageSaved) {
@@ -106,12 +108,14 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
       ImageEventExistingFilterSelected event, Emitter<ImageStateBase?> emit) {
     _blocState.selectedFilterIndex = event.index;
     _blocState.resizeFilterMode = false;
+    _blocState.rotateFilterMode = false;
     emit(_blocState.clone()); //needed
   }
 
   FutureOr<void> deleteFilterIndex(ImageEventCurrentFilterDelete event,
       Emitter<ImageStateBase?> emit) async {
     _blocState.resizeFilterMode = false;
+    _blocState.rotateFilterMode = false;
     if (_blocState.positions.length <= 1) {
       imageOperationsHelper.transactionCancel();
       _blocState.resetSelection();
@@ -132,6 +136,7 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
   void addFilter(ImageEventNewFilter event, Emitter<ImageStateBase?> emit) {
     imageOperationsHelper.transactionStart();
     _blocState.resizeFilterMode = false;
+    _blocState.rotateFilterMode = false;
     _blocState.addPosition(event.x, event.y);
     _blocState.selectedFilterIndex = _blocState.positions.length - 1;
     _blocState.isImageSaved = false;
@@ -143,6 +148,7 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
   void positionFilterChanged(
       ImageEventPositionChanged event, Emitter<ImageStateBase?> emit) {
     _blocState.resizeFilterMode = false;
+    _blocState.rotateFilterMode = false;
     var position = _blocState.getSelectedPosition();
     if (position != null) {
       imageOperationsHelper.cancelCurrentFilters(position, _blocState);
@@ -188,21 +194,18 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
   FutureOr<void> imageSelected(
       ImageEventSelected event, Emitter<ImageStateBase?> emit) async {
     await _restoreFilterDefaults();
-    var lastPath = await _repo.getLastPath();
+    // Nothing about the picked image (not even its path) is remembered
+    // between launches, so the size limit is derived from the heap size
+    // up front instead of after a crash.
     var maxImageSize = ImgConst.defaultImageSize;
-    if ((lastPath) == event.filename) {
-      var heapMemory = await _repo.getHeapSize();
-      if (heapMemory > 0) {
-        maxImageSize =
-            sqrt((heapMemory * ImgConst.partFreeMemory) / 4.0).toInt();
-      }
-    } else {
-      maxImageSize = -1;
-      await _repo.setLastPath(event.filename);
+    var heapMemory = await _repo.getHeapSize();
+    if (heapMemory > 0) {
+      maxImageSize = sqrt((heapMemory * ImgConst.partFreeMemory) / 4.0).toInt();
     }
     _blocState.filename = event.filename;
     _blocState.isImageSaved = true;
     _blocState.resizeFilterMode = false;
+    _blocState.rotateFilterMode = false;
     img_tools.Image? tmpImage;
     try {
       tmpImage = await imgTools.scaleFile(_blocState.filename, maxImageSize);
@@ -225,7 +228,6 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
     /// VERY IMPORTANT TO USE AWAIT HERE!!!
     _blocState.image = await imageOperationsHelper.setImage(tmpImage);
     emit(_blocState.clone());
-    await _repo.removeLastPath();
   }
 
   /// last used shape, blur type and strength (not size) survive app restarts
@@ -253,12 +255,28 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
     if (_blocState.addFaces(detectionResult)) _blocState.isImageSaved = false;
     _blocState.selectedFilterIndex = _blocState.positions.length - 1;
     _blocState.resizeFilterMode = false;
+    _blocState.rotateFilterMode = false;
     _delayedApplyFilter();
     emit(_blocState.clone());
   }
 
+  void rotateCurrentFilter(
+      ImageEventRotate event, Emitter<ImageStateBase?> emit) {
+    var position = _blocState.getSelectedPosition();
+    if (position != null && !position.isRounded) {
+      _blocState.rotateFilterMode = true;
+      _blocState.resizeFilterMode = false;
+      imageOperationsHelper.cancelCurrentFilters(position, _blocState);
+      position.rotateFromClick(event.x, event.y);
+      _blocState.isImageSaved = false;
+      _delayedApplyFilter();
+      emit(_blocState.clone());
+    }
+  }
+
   void resizeCurrentFilter(
       ImageEventTopRight event, Emitter<ImageStateBase?> emit) {
+    _blocState.rotateFilterMode = false;
     _blocState.resizeFilterMode = true;
     var position = _blocState.getSelectedPosition();
     if (position != null) {
@@ -270,7 +288,6 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
   }
 
   Future<ImageStateFeedback> _yieldCriticalException(String title) async {
-    await _repo.removeLastPath();
     return ImageStateFeedback(
       title,
       messageType: MessageBarType.failure,

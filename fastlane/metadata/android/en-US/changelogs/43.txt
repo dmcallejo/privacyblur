@@ -1,0 +1,1 @@
+Rebranded as PrivacyBlur Revived with a new app id. Images are no longer kept after editing, and the release app has no network permission.

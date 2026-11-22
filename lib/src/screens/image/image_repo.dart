@@ -16,18 +16,6 @@ class ImageRepository {
 
   ImageRepository(this._storage, this._heapSize);
 
-  Future<bool> setLastPath(String path) {
-    return _storage.setLastPath(path);
-  }
-
-  Future<String> getLastPath() {
-    return _storage.getLastPath();
-  }
-
-  Future<bool> removeLastPath() {
-    return _storage.removeLastPath();
-  }
-
   static const _keyRounded = 'lastShapeRounded';
   static const _keyPixelate = 'lastFilterPixelate';
   static const _keyGranularity = 'lastGranularityRatio';

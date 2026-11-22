@@ -13,7 +13,7 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
-    namespace = "de.mathema.privacyblur"
+    namespace = "com.dmcallejo.privacyblur"
     // permission_handler_android needs API 37; compileSdk is backward compatible.
     compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
@@ -31,15 +31,15 @@ android {
     productFlavors {
         create("foss") {
             dimension = "flavor-type"
-            applicationId = "de.mathema.privacyblur"
+            applicationId = "com.dmcallejo.privacyblur"
             versionNameSuffix = "-foss"
-            resValue("string", "app_name", "PrivacyBlur FOSS")
+            resValue("string", "app_name", "PrivacyBlur Revived FOSS")
         }
         create("full") {
             dimension = "flavor-type"
-            applicationId = "de.mathema.privacyblur"
+            applicationId = "com.dmcallejo.privacyblur"
             versionNameSuffix = "-full"
-            resValue("string", "app_name", "PrivacyBlur")
+            resValue("string", "app_name", "PrivacyBlur Revived")
         }
     }
 
@@ -49,7 +49,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "de.mathema.privacyblur"
+        applicationId = "com.dmcallejo.privacyblur"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

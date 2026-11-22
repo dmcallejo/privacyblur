@@ -2,30 +2,27 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:privacyblur/src/utils/translate.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:privacyblur/resources/localization/keys.dart';
-import 'package:privacyblur/src/data/services/local_storage.dart';
 import 'package:privacyblur/src/di.dart';
 import 'package:privacyblur/src/router.dart';
 import 'package:privacyblur/src/screens/main/utils/image_picking.dart';
 import 'package:privacyblur/src/utils/desktop_config.dart';
 import 'package:privacyblur/src/screens/main/widgets/version_number.dart';
 import 'package:privacyblur/src/utils/layout_config.dart';
+import 'package:privacyblur/src/utils/temp_cleaner.dart';
 import 'package:privacyblur/src/widgets/adaptive_widgets_builder.dart';
 import 'package:privacyblur/src/widgets/message_bar.dart';
 import 'package:privacyblur/src/widgets/section.dart';
 import 'package:privacyblur/src/widgets/theme/theme_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class MainScreen extends StatefulWidget with AppMessages {
   final DependencyInjection di;
   final AppRouter router;
-  final localStorage = LocalStorage();
 
   MainScreen(this.di, this.router, {Key? key}) : super(key: key);
 
@@ -36,14 +33,13 @@ class MainScreen extends StatefulWidget with AppMessages {
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   final _picker = ImagePicking();
   late Color primaryColor;
-  final String websiteURL = 'https://mathema-apps.de/';
   final menuKey = UniqueKey();
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _showLastImageDialog(context);
+    TempCleaner.clear();
   }
 
   @override
@@ -117,17 +113,22 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                   ),
                   sectionHeight: screenInnerHeight * 0.2),
               Section(
-                child: Row(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Made with ', style: TextStyle(color: textColor)),
-                    Icon(CupertinoIcons.heart_fill, color: primaryColor),
-                    Text(' by ', style: TextStyle(color: textColor)),
-                    GestureDetector(
-                      child: Text('MATHEMA',
-                          style: TextStyle(color: primaryColor)),
-                      onTap: () => launchLink(websiteURL),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Made with ', style: TextStyle(color: textColor)),
+                        Icon(CupertinoIcons.heart_fill, color: primaryColor),
+                        Text(' by ', style: TextStyle(color: textColor)),
+                        Text('MATHEMA',
+                            style: TextStyle(color: primaryColor)),
+                      ],
                     ),
+                    const SizedBox(height: 4),
+                    Text('Revived by Diego',
+                        style: TextStyle(color: textColor)),
                   ],
                 ),
                 sectionHeight: screenInnerHeight * 0.1,
@@ -172,21 +173,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
     );
   }
 
-  void _showLastImageDialog(BuildContext context) async {
-    var path = await widget.localStorage.getLastPath();
-    if (path.isNotEmpty) {
-      var canDownscale = await AppConfirmationBuilder.build(context,
-          message: translate(Keys.Messages_Errors_Image_Crash),
-          acceptTitle: translate(Keys.Buttons_Ok),
-          rejectTitle: translate(Keys.Buttons_Cancel));
-      if (canDownscale) {
-        widget.router.openImageRoute(context, path);
-      } else {
-        widget.localStorage.removeLastPath();
-      }
-    }
-  }
-
   void openImageAction(BuildContext context, ImageSource type) async {
     if (await _picker.requestLibraryPermissionStatus()) {
       try {
@@ -194,7 +180,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         if (pickedFile != null && await pickedFile.exists()) {
           widget.router
               .openImageRoute(context, pickedFile.path)
-              .then((value) => setState(() {}));
+              .then((value) {
+            TempCleaner.clear();
+            if (mounted) setState(() {});
+          });
         } else {
           widget.showMessage(
               context: context,
@@ -219,16 +208,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         setState(() {
           _picker.updatePermissionState();
         });
-      }
-    }
-  }
-
-  void launchLink(String url) async {
-    try {
-      launch(Uri.encodeFull(url));
-    } catch (e) {
-      if (kDebugMode) {
-        print("Url cant be opened");
       }
     }
   }
