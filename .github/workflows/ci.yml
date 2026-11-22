@@ -1,10 +1,17 @@
 name: CI
 
+# Pull requests are built by the pull_request trigger; pushes only run for main,
+# so a commit on a PR branch is not built twice.
 on:
   push:
-    branches: [main, 'claude/**']
+    branches: [main]
   pull_request:
   workflow_dispatch:
+
+# A newer run for the same branch or PR replaces the one still in progress.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
