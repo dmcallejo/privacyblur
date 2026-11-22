@@ -2,7 +2,6 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:privacyblur/src/utils/translate.dart';
@@ -20,7 +19,6 @@ import 'package:privacyblur/src/widgets/adaptive_widgets_builder.dart';
 import 'package:privacyblur/src/widgets/message_bar.dart';
 import 'package:privacyblur/src/widgets/section.dart';
 import 'package:privacyblur/src/widgets/theme/theme_provider.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class MainScreen extends StatefulWidget with AppMessages {
   final DependencyInjection di;
@@ -36,7 +34,6 @@ class MainScreen extends StatefulWidget with AppMessages {
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   final _picker = ImagePicking();
   late Color primaryColor;
-  final String websiteURL = 'https://mathema-apps.de/';
   final menuKey = UniqueKey();
 
   @override
@@ -117,17 +114,22 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                   ),
                   sectionHeight: screenInnerHeight * 0.2),
               Section(
-                child: Row(
+                child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text('Made with ', style: TextStyle(color: textColor)),
-                    Icon(CupertinoIcons.heart_fill, color: primaryColor),
-                    Text(' by ', style: TextStyle(color: textColor)),
-                    GestureDetector(
-                      child: Text('MATHEMA',
-                          style: TextStyle(color: primaryColor)),
-                      onTap: () => launchLink(websiteURL),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Made with ', style: TextStyle(color: textColor)),
+                        Icon(CupertinoIcons.heart_fill, color: primaryColor),
+                        Text(' by ', style: TextStyle(color: textColor)),
+                        Text('MATHEMA',
+                            style: TextStyle(color: primaryColor)),
+                      ],
                     ),
+                    const SizedBox(height: 4),
+                    Text('Revived by Diego',
+                        style: TextStyle(color: textColor)),
                   ],
                 ),
                 sectionHeight: screenInnerHeight * 0.1,
@@ -219,16 +221,6 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         setState(() {
           _picker.updatePermissionState();
         });
-      }
-    }
-  }
-
-  void launchLink(String url) async {
-    try {
-      launch(Uri.encodeFull(url));
-    } catch (e) {
-      if (kDebugMode) {
-        print("Url cant be opened");
       }
     }
   }
