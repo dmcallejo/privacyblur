@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "de.mathema" "\0"
-            VALUE "FileDescription", "A new Flutter project." "\0"
+            VALUE "CompanyName", "Diego Calleja" "\0"
+            VALUE "FileDescription", "PrivacyBlur Revived" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "pixelmonster" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2021 de.mathema. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2021 MATHEMA GmbH, 2026 Diego Calleja. MIT licensed." "\0"
             VALUE "OriginalFilename", "pixelmonster.exe" "\0"
-            VALUE "ProductName", "pixelmonster" "\0"
+            VALUE "ProductName", "PrivacyBlur Revived" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

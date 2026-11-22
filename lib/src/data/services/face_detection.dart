@@ -22,7 +22,7 @@ abstract class FaceDetectionService {
 
 class FaceDetection extends FaceDetectionService {
   static const _platform =
-      MethodChannel('de.mathema.privacyblur/face_detection');
+      MethodChannel('com.dmcallejo.privacyblur/face_detection');
 
   FaceDetection._privateConstructor();
 

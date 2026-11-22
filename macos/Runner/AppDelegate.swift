@@ -7,8 +7,8 @@ import CoreGraphics
 
 @NSApplicationMain
 class AppDelegate: FlutterAppDelegate {
-    private var HEAP_SIZE_CHANNEL: String = "de.mathema.privacyblur/memory";
-    // private var FACE_DETECTION_CHANNEL: String = "de.mathema.privacyblur/face_detection";
+    private var HEAP_SIZE_CHANNEL: String = "com.dmcallejo.privacyblur/memory";
+    // private var FACE_DETECTION_CHANNEL: String = "com.dmcallejo.privacyblur/face_detection";
     
     override func applicationDidFinishLaunching(_ notification: Notification) {
         let controller : FlutterViewController = mainFlutterWindow?.contentViewController as! FlutterViewController

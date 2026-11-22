@@ -1,4 +1,4 @@
-package de.mathema.privacyblur
+package com.dmcallejo.privacyblur
 
 import androidx.annotation.NonNull
 import com.google.mlkit.vision.common.InputImage
@@ -9,8 +9,8 @@ import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 
 class MainActivity : FlutterActivity() {
-    private val CHANNEL = "de.mathema.privacyblur/memory"
-    private val FACEDETECTION = "de.mathema.privacyblur/face_detection"
+    private val CHANNEL = "com.dmcallejo.privacyblur/memory"
+    private val FACEDETECTION = "com.dmcallejo.privacyblur/face_detection"
 
     override fun configureFlutterEngine(@NonNull flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
