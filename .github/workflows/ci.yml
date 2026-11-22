@@ -50,7 +50,6 @@ jobs:
           name: privacyblur-foss-debug-apk
           path: build/app/outputs/flutter-apk/app-foss-debug.apk
           if-no-files-found: error
-          retention-days: 14
 
   ios:
     name: Build iOS (no codesign)

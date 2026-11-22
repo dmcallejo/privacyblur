@@ -22,19 +22,21 @@ class ImagePicking extends ImagePicker {
   final List<String> allowedExtensions = ['jpg', 'png', 'jpeg', 'webp', 'gif'];
 
   Future<bool> requestLibraryPermissionStatus() async {
-    return AppTheme.isDesktop
-        ? true
-        : (Platform.isIOS
-            ? await _requestPermission(Permission.photos)
-            : await _requestPermission(Permission.storage));
+    // Desktop and Android need no runtime permission: on Android the system
+    // photo picker / document picker hands back a URI grant, so neither
+    // READ_EXTERNAL_STORAGE nor READ_MEDIA_IMAGES is required (and
+    // Permission.storage is always denied on Android 13+).
+    if (AppTheme.isDesktop || !Platform.isIOS) return true;
+    return _requestPermission(Permission.photos);
   }
 
   Future<bool> _requestPermission(Permission permission) async {
     if (await permission.isGranted || await permission.isLimited) {
       return true;
     } else {
-      return ((await permission.request()) == PermissionStatus.granted ||
-          (await permission.request()) == PermissionStatus.limited);
+      final status = await permission.request();
+      return status == PermissionStatus.granted ||
+          status == PermissionStatus.limited;
     }
   }
 
@@ -77,7 +79,7 @@ class ImagePicking extends ImagePicker {
       resultPermission = (await Permission.photos.isGranted ||
           await Permission.photos.isLimited);
     } else {
-      resultPermission = (await Permission.storage.isGranted);
+      resultPermission = true;
     }
     if (permissionsGranted != resultPermission) {
       permissionsGranted = resultPermission;
