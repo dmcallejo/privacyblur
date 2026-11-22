@@ -6,6 +6,10 @@ A cross-platform application to obfuscate sensitive data from images, targeting 
 
 > **PrivacyBlur Revived** is a community-maintained fork of [PrivacyBlur by MATHEMA GmbH](https://github.com/MATHEMA-GmbH/privacyblur), maintained by Diego Calleja. It uses its own application id (`com.dmcallejo.privacyblur`) so it does not clash with the original app. The original app remains available on [F-Droid](https://f-droid.org/packages/de.mathema.privacyblur), Google Play and the App Store under the original id `de.mathema.privacyblur`; those listings are not this fork.
 
+## Privacy
+
+See the [privacy policy](https://dmcallejo.github.io/privacyblur/privacy.html).
+
 ## Credits
 
 - Original application: Copyright (c) 2021 MATHEMA GmbH, released under the MIT license.
