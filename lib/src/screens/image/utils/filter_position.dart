@@ -27,7 +27,7 @@ class FilterPosition {
   static final double _sCos = cos(_startAngle);
   static const _resizeBlockSize = 8; //dp//lp
   static const _resizeClickSize = 32; //dp//lp
-  static const _rotateStemSize = 28; //dp//lp, distance of handle above top edge
+  static const _rotateStemSize = 20; //dp//lp, distance of handle above top edge
   static const _rotateSnapStep = pi / 4; //snap to 0/45/90... degrees
   static const _rotateSnapTolerance = 3 * pi / 180;
 
@@ -128,11 +128,24 @@ class FilterPosition {
     return _rotateAroundCenter(eX, eY, rotation);
   }
 
-  /// handle above the top edge of the rotated area
+  /// true when the rotation handle sits below the area instead of above it.
+  /// Decided from the unrotated position only, so it can't flip while the
+  /// area is being rotated: below the area if there is no room above it.
+  bool _handleBelow = false;
+
+  bool get isRotationHandleBelow => _handleBelow;
+
+  /// signed distance (local y axis) of the handle stem start from center
+  double get _handleDir => _handleBelow ? 1 : -1;
+
+  /// handle above the top edge of the rotated area (or below the bottom edge
+  /// if there is no room above, see [isRotationHandleBelow])
   Offset getRotationHandlePosition(double pixelsInDP) {
     var stem = _rotateStemSize * pixelsInDP;
+    var halfHeight = getVisibleHeight().abs() / 2;
+    _handleBelow = posY - halfHeight - stem < 0;
     return _rotateAroundCenter(
-        posX, posY - (getVisibleHeight().abs() / 2) - stem, rotation);
+        posX, posY + _handleDir * (halfHeight + stem), rotation);
   }
 
   Rect getRotationHandleClickRect(double pixelsInDP) {
@@ -142,14 +155,14 @@ class FilterPosition {
         height: _resizeClickSize * pixelsInDP);
   }
 
-  /// point the handle is attached to (middle of the top edge)
+  /// point the handle is attached to (middle of the top or bottom edge)
   Offset getRotationStemStart() => _rotateAroundCenter(
-      posX, posY - (getVisibleHeight().abs() / 2), rotation);
+      posX, posY + _handleDir * (getVisibleHeight().abs() / 2), rotation);
 
   /// rotates area so that its rotation handle points towards (x, y)
   void rotateFromClick(double x, double y) {
     if (x == posX && y == posY) return;
-    var angle = atan2(y - posY, x - posX) + pi / 2; // handle is straight above
+    var angle = atan2(y - posY, x - posX) - _handleDir * pi / 2;
     var snapped = (angle / _rotateSnapStep).round() * _rotateSnapStep;
     if ((angle - snapped).abs() <= _rotateSnapTolerance) angle = snapped;
     // normalize to (-pi, pi]

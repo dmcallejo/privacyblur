@@ -66,6 +66,29 @@ void main() {
     expect(f.rotation, closeTo(pi / 4, 1e-6));
   });
 
+  test('rotation handle flips below the square when there is no room above',
+      () {
+    var f = _wideSquare();
+    f.getRotationHandlePosition(1);
+    expect(f.isRotationHandleBelow, isFalse);
+    f.posY = 25; // top edge 5px from the image border, stem would not fit
+    var h = f.getRotationHandlePosition(1);
+    expect(f.isRotationHandleBelow, isTrue);
+    expect(h.dx, closeTo(f.posX, 1e-6));
+    expect(h.dy, greaterThan(f.posY + f.getVisibleHeight().abs() / 2));
+    expect(f.getRotationStemStart().dy,
+        closeTo(f.posY + f.getVisibleHeight().abs() / 2, 1e-6));
+    // aiming at the handle keeps the rotation unchanged...
+    f.rotateFromClick(h.dx, h.dy);
+    expect(f.rotation, closeTo(0, 1e-6));
+    // ...and dragging it to the right still rotates clockwise by 90 degrees
+    f.rotateFromClick(f.posX - 100, f.posY);
+    expect(f.rotation, closeTo(pi / 2, 1e-6));
+    // handle side doesn't depend on the rotation
+    f.getRotationHandlePosition(1);
+    expect(f.isRotationHandleBelow, isTrue);
+  });
+
   test('resizing a rotated square keeps the opposite corner fixed', () {
     var f = _wideSquare();
     f.rotation = pi / 6;
