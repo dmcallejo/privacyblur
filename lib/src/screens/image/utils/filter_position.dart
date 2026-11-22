@@ -21,6 +21,17 @@ class FilterPosition {
     _sIsPixelate = true;
   }
 
+  /// sets defaults for new areas (e.g. restored from persistent storage).
+  /// Size is deliberately not restored. Null values keep the current default.
+  static void setDefaults(
+      {bool? isRounded, bool? isPixelate, double? granularityRatio}) {
+    if (isRounded != null) _sIsRounded = isRounded;
+    if (isPixelate != null) _sIsPixelate = isPixelate;
+    if (granularityRatio != null) {
+      _sGranularityRatio = granularityRatio.clamp(0.0, 1.0).toDouble();
+    }
+  }
+
   /// scale area constants
   static const _startAngle = -pi / 4; //bottom right point
   static final double _sSin = sin(_startAngle);

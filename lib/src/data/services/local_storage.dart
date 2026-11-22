@@ -39,6 +39,26 @@ class LocalStorage {
     }
   }
 
+  Future<bool?> getBool(String key) async {
+    await _init();
+    return _sharedPrefs.getBool(key);
+  }
+
+  Future<bool> putBool(String key, bool value) async {
+    await _init();
+    return _sharedPrefs.setBool(key, value);
+  }
+
+  Future<double?> getDouble(String key) async {
+    await _init();
+    return _sharedPrefs.getDouble(key);
+  }
+
+  Future<bool> putDouble(String key, double value) async {
+    await _init();
+    return _sharedPrefs.setDouble(key, value);
+  }
+
   Future _init() async {
     _sharedPrefs = await SharedPreferences.getInstance();
     return Future.value();
