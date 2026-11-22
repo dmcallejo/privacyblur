@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:privacyblur/src/utils/desktop_config.dart';
 import 'package:privacyblur/src/utils/layout_config.dart';
+import 'package:privacyblur/src/utils/translate.dart';
 
 /// Shows the menus set through [DesktopWindowConfig.updateMenu].
 ///
@@ -43,13 +44,13 @@ class DesktopMenuHost extends StatelessWidget {
         current = <PlatformMenuItem>[];
       } else {
         current.add(PlatformMenuItem(
-            label: entry.label,
+            label: translate(entry.label),
             shortcut: entry.shortcut,
             onSelected: entry.onSelected));
       }
     }
     groups.add(PlatformMenuItemGroup(members: current));
-    return PlatformMenu(label: menu.label, menus: groups);
+    return PlatformMenu(label: translate(menu.label), menus: groups);
   }
 
   List<Widget> _barItems(List<DesktopMenu> menus) {
@@ -61,9 +62,9 @@ class DesktopMenuHost extends StatelessWidget {
                       : MenuItemButton(
                           shortcut: entry.shortcut,
                           onPressed: entry.onSelected,
-                          child: Text(entry.label)))
+                          child: Text(translate(entry.label))))
                   .toList(),
-              child: Text(menu.label),
+              child: Text(translate(menu.label)),
             ))
         .toList();
   }

@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_translate/flutter_translate.dart';
+import 'package:privacyblur/src/utils/translate.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:privacyblur/resources/localization/keys.dart';
@@ -145,9 +145,9 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   void _loadDesktopMenu() {
     LayoutConfig.desktop.updateMenu(key: menuKey, extraMenus: [
-      DesktopMenu(label: translate(Keys.Main_Screen_Menu_Title), entries: [
+      DesktopMenu(label: Keys.Main_Screen_Menu_Title, entries: [
         DesktopMenuEntry(
-            label: translate(Keys.Main_Screen_Select_Image),
+            label: Keys.Main_Screen_Select_Image,
             onSelected: () => openImageAction(context, ImageSource.gallery),
             shortcut: const SingleActivator(LogicalKeyboardKey.keyO))
       ])
