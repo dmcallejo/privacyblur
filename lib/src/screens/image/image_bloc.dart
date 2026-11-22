@@ -9,6 +9,7 @@ import 'package:privacyblur/src/data/services/face_detection.dart'
     if (BuildFlavor.isFoss) 'package:privacyblur/src/data/services/face_detection_foss.dart';
 import 'package:privacyblur/src/screens/image/bloc_helpers/non_emit_functions.dart';
 import 'package:privacyblur/src/screens/image/helpers/constants.dart';
+import 'package:privacyblur/src/screens/image/utils/filter_position.dart';
 import 'package:privacyblur/src/utils/image_filter/image_filters.dart';
 import 'package:privacyblur/src/widgets/message_bar.dart';
 
@@ -67,6 +68,7 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
       if (event.isRounded == position.isRounded) return;
       imageOperationsHelper.cancelCurrentFilters(position, _blocState);
       position.isRounded = event.isRounded;
+      _repo.setShapeRounded(event.isRounded);
       _delayedApplyFilter();
       emit(_blocState.clone()); //needed
     }
@@ -79,6 +81,7 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
       if (event.isPixelate == position.isPixelate) return;
       imageOperationsHelper.cancelCurrentFilters(position, _blocState);
       position.isPixelate = event.isPixelate;
+      _repo.setFilterPixelate(event.isPixelate);
       _blocState.positionsUpdateOrder();
       _delayedApplyFilter(); //yield _blocState.clone(); not needed here
     }
@@ -173,6 +176,7 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
     if (position != null) {
       imageOperationsHelper.cancelCurrentFilters(position, _blocState);
       position.granularityRatio = event.power;
+      _repo.setGranularityRatio(event.power);
       _blocState.positionsUpdateOrder();
       _delayedApplyFilter();
       emit(_blocState.clone()); //not really needed here, but now its necessary
@@ -189,6 +193,7 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
 
   FutureOr<void> imageSelected(
       ImageEventSelected event, Emitter<ImageStateBase?> emit) async {
+    await _restoreFilterDefaults();
     // Nothing about the picked image (not even its path) is remembered
     // between launches, so the size limit is derived from the heap size
     // up front instead of after a crash.
@@ -223,6 +228,19 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
     /// VERY IMPORTANT TO USE AWAIT HERE!!!
     _blocState.image = await imageOperationsHelper.setImage(tmpImage);
     emit(_blocState.clone());
+  }
+
+  /// last used shape, blur type and strength (not size) survive app restarts
+  Future<void> _restoreFilterDefaults() async {
+    try {
+      var defaults = await _repo.getFilterDefaults();
+      FilterPosition.setDefaults(
+          isRounded: defaults.isRounded,
+          isPixelate: defaults.isPixelate,
+          granularityRatio: defaults.granularityRatio);
+    } catch (_) {
+      // storage problems must never block opening an image
+    }
   }
 
   FutureOr<void> detectFaces(
