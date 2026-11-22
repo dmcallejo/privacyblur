@@ -27,6 +27,11 @@ jobs:
       - run: flutter analyze --no-fatal-infos --no-fatal-warnings
       - run: flutter test --exclude-tags benchmark
       - run: flutter build apk --debug --flavor foss -t lib/main_foss.dart
+      - uses: actions/upload-artifact@v4
+        with:
+          name: privacyblur-foss-debug-apk
+          path: build/app/outputs/flutter-apk/app-foss-debug.apk
+          if-no-files-found: error
 
   ios:
     name: Build iOS (no codesign)
