@@ -2,12 +2,14 @@
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_translate/flutter_translate.dart';
 import 'package:privacyblur/resources/localization/keys.dart';
 
 enum DESKTOP_LAYOUT_TYPE { small, large, regular }
 
 /// A single entry of a desktop menu. A [divider] has no label or action.
+///
+/// Labels are translation keys; they are translated when the menu is shown so
+/// that they follow the current locale.
 class DesktopMenuEntry {
   final String label;
   final VoidCallback? onSelected;
@@ -80,25 +82,25 @@ class DesktopWindowConfig extends DesktopWindow {
   }
 
   DesktopMenu _layoutMenu() =>
-      DesktopMenu(label: translate(Keys.Layout_Configs_Layout), entries: [
+      DesktopMenu(label: Keys.Layout_Configs_Layout, entries: [
         DesktopMenuEntry(
-          label: translate(Keys.Layout_Configs_Fullscreen),
+          label: Keys.Layout_Configs_Fullscreen,
           onSelected: () => toggleFullScreen(),
           shortcut: const SingleActivator(LogicalKeyboardKey.f11),
         ),
         DesktopMenuEntry(
-          label: translate(Keys.Layout_Configs_Large),
+          label: Keys.Layout_Configs_Large,
           onSelected: () => setWindowSize(size: DESKTOP_LAYOUT_TYPE.large),
           shortcut: const SingleActivator(LogicalKeyboardKey.keyL),
         ),
         DesktopMenuEntry(
-          label: translate(Keys.Layout_Configs_Small),
+          label: Keys.Layout_Configs_Small,
           onSelected: () => setWindowSize(size: DESKTOP_LAYOUT_TYPE.small),
           shortcut: const SingleActivator(LogicalKeyboardKey.keyS),
         ),
         const DesktopMenuEntry.divider(),
         DesktopMenuEntry(
-          label: translate(Keys.Layout_Configs_Regular),
+          label: Keys.Layout_Configs_Regular,
           onSelected: () => setWindowSize(size: DESKTOP_LAYOUT_TYPE.regular),
           shortcut: const SingleActivator(LogicalKeyboardKey.keyZ),
         ),
