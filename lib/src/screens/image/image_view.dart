@@ -101,8 +101,7 @@ class ImageScreen extends StatelessWidget with AppMessages {
                       child: _buildHomeBody(context, state),
                     ),
                     floatingActionButton: (noSelectedPosition &&
-                            !BuildFlavor.isFoss &&
-                            !AppTheme.isDesktop)
+                            BuildFlavor.hasFaceDetection)
                         ? Padding(
                             padding:
                                 EdgeInsets.fromLTRB(0, 0, fabRight, fabBottom),

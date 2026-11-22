@@ -99,7 +99,7 @@ In order to upload to different Platforms/Stores we implemented build flavors.
 **This section is very important if you´re trying to run the project on you own!**
 The application is available in different flavors:
 
-- foss (version without MLKit - FaceDetection)
+- foss (version without MLKit - FaceDetection). iOS and desktop builds never include ML Kit, only the Android full flavor does.
 - full (self-explanatory)
 
 Running with default commands: ```flutter run``` and ```flutter build``` wont work anymore here.
