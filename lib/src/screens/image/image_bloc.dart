@@ -189,17 +189,13 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
 
   FutureOr<void> imageSelected(
       ImageEventSelected event, Emitter<ImageStateBase?> emit) async {
-    var lastPath = await _repo.getLastPath();
+    // Nothing about the picked image (not even its path) is remembered
+    // between launches, so the size limit is derived from the heap size
+    // up front instead of after a crash.
     var maxImageSize = ImgConst.defaultImageSize;
-    if ((lastPath) == event.filename) {
-      var heapMemory = await _repo.getHeapSize();
-      if (heapMemory > 0) {
-        maxImageSize =
-            sqrt((heapMemory * ImgConst.partFreeMemory) / 4.0).toInt();
-      }
-    } else {
-      maxImageSize = -1;
-      await _repo.setLastPath(event.filename);
+    var heapMemory = await _repo.getHeapSize();
+    if (heapMemory > 0) {
+      maxImageSize = sqrt((heapMemory * ImgConst.partFreeMemory) / 4.0).toInt();
     }
     _blocState.filename = event.filename;
     _blocState.isImageSaved = true;
@@ -227,7 +223,6 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
     /// VERY IMPORTANT TO USE AWAIT HERE!!!
     _blocState.image = await imageOperationsHelper.setImage(tmpImage);
     emit(_blocState.clone());
-    await _repo.removeLastPath();
   }
 
   FutureOr<void> detectFaces(
@@ -275,7 +270,6 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
   }
 
   Future<ImageStateFeedback> _yieldCriticalException(String title) async {
-    await _repo.removeLastPath();
     return ImageStateFeedback(
       title,
       messageType: MessageBarType.failure,

@@ -17,6 +17,7 @@
         </intent>
     </queries>
     <application
+        android:allowBackup="false"
         android:label="PrivacyBlur"
         android:icon="@mipmap/ic_launcher">
         <activity
