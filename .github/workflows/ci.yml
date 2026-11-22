@@ -45,6 +45,25 @@ jobs:
           cache: true
       - run: flutter pub get
       - run: flutter build apk --debug --flavor foss -t lib/main_foss.dart
+      - name: Release builds must not request network access
+        run: |
+          for flavor in foss full; do
+            target=lib/main_full.dart
+            [ "$flavor" = foss ] && target=lib/main_foss.dart
+            flutter build apk --release --flavor "$flavor" -t "$target"
+            aapt2=$(ls "$ANDROID_HOME"/build-tools/*/aapt2 | sort -V | tail -n 1)
+            perms=$("$aapt2" dump permissions build/app/outputs/flutter-apk/app-"$flavor"-release.apk)
+            echo "$perms"
+            if echo "$perms" | grep -Eq 'INTERNET|ACCESS_NETWORK_STATE'; then
+              echo "::error::$flavor release APK requests a network permission"
+              exit 1
+            fi
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: privacyblur-foss-debug-apk
+          path: build/app/outputs/flutter-apk/app-foss-debug.apk
+          if-no-files-found: error
 
   ios:
     name: Build iOS (no codesign)

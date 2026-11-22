@@ -78,6 +78,14 @@ class ImageEventSave2Disk extends ImageEventBase {
   ImageEventSave2Disk(this.needOverride);
 }
 
+/// image rotate filter area: handle dragged to the point
+class ImageEventRotate extends ImageEventBase {
+  final double x;
+  final double y;
+
+  ImageEventRotate(this.x, this.y);
+}
+
 /// image change position of top right filter area
 class ImageEventTopRight extends ImageEventBase {
   final double x;

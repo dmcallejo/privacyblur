@@ -16,6 +16,16 @@ class RangeHelper {
   final bool isCircle;
   late bool fail;
 
+  /// rotated rectangle (see [RangeHelper.rotatedSquare]); range is its
+  /// bounding box and [checkPointInRange] cuts the corners off
+  bool isRotated = false;
+  double _rotCenterX = 0;
+  double _rotCenterY = 0;
+  double _rotHalfWidth = 0;
+  double _rotHalfHeight = 0;
+  double _rotCos = 1;
+  double _rotSin = 0;
+
   RangeHelper.circle(this.centerX, this.centerY, this.radius, this.imgWidth,
       this.imgHeight, this.imgBorder)
       : isCircle = true {
@@ -64,8 +74,44 @@ class RangeHelper {
     rangeHeight = y2 - y1 + 1;
   }
 
+  /// Rectangle of [width] x [height] centered in (centerX, centerY), rotated
+  /// clockwise by [angle] radians.
+  factory RangeHelper.rotatedSquare(int centerX, int centerY, int width,
+      int height, double angle, int imgWidth, int imgHeight, int imgBorder) {
+    var halfWidth = width.abs() / 2;
+    var halfHeight = height.abs() / 2;
+    var c = cos(angle);
+    var s = sin(angle);
+    var boxHalfWidth = (halfWidth * c).abs() + (halfHeight * s).abs();
+    var boxHalfHeight = (halfWidth * s).abs() + (halfHeight * c).abs();
+    var range = RangeHelper.square(
+        (centerX - boxHalfWidth).floor(),
+        (centerY - boxHalfHeight).floor(),
+        (centerX + boxHalfWidth).ceil(),
+        (centerY + boxHalfHeight).ceil(),
+        imgWidth,
+        imgHeight,
+        imgBorder);
+    range.isRotated = true;
+    range._rotCenterX = centerX.toDouble();
+    range._rotCenterY = centerY.toDouble();
+    range._rotHalfWidth = halfWidth;
+    range._rotHalfHeight = halfHeight;
+    range._rotCos = c;
+    range._rotSin = s;
+    return range;
+  }
+
   bool checkPointInRange(int x, int y) {
     //if(fail) return false;
+    if (isRotated) {
+      // rotate point back by -angle into the unrotated frame
+      var dx = x - _rotCenterX;
+      var dy = y - _rotCenterY;
+      var lx = dx * _rotCos + dy * _rotSin;
+      var ly = -dx * _rotSin + dy * _rotCos;
+      return lx.abs() <= _rotHalfWidth && ly.abs() <= _rotHalfHeight;
+    }
     if (!isCircle) return true;
     int diffX = (centerX - x).abs();
     int diffY = (centerY - y).abs();
