@@ -11,10 +11,15 @@ class ShapePainter extends CustomPainter {
   final List<FilterPosition> positions;
   final double pixelsInDP;
 
-  ShapePainter(this.positions, this.selectedPosition, this.pixelsInDP) {
+  /// handle that is being dragged right now, drawn bigger
+  final bool resizing;
+  final bool rotating;
+
+  ShapePainter(this.positions, this.selectedPosition, this.pixelsInDP,
+      {this.resizing = false, this.rotating = false}) {
     // with prime numbers to reduce collisions... may be. Not very important
     // from https://primes.utm.edu/lists/small/10000.txt
-    _hash = (pixelsInDP * 5623).round();
+    _hash = (pixelsInDP * 5623).round() + (resizing ? 3571 : 0) + (rotating ? 6217 : 0);
     for (var p in positions) {
       _hash += (p.isRounded ? 7879 : 9341) +
           selectedPosition * 8467 +
@@ -65,6 +70,7 @@ class ShapePainter extends CustomPainter {
   }
 
   void _drawDragRect(Canvas canvas, Rect block, Color color) {
+    // pressed handles are inflated by the caller
     var paint = Paint();
     paint.color = color;
     paint.style = PaintingStyle.fill;
@@ -85,18 +91,42 @@ class ShapePainter extends CustomPainter {
     //additional drawing for resizing rect area is here...
   }
 
+  /// faint fill so it is clear which shape the handles belong to
+  void _drawSelectionFill(Canvas canvas, FilterPosition position) {
+    var fill = Paint()
+      ..color = AppTheme.primaryColor.withOpacity(0.12)
+      ..style = PaintingStyle.fill;
+    if (position.isRounded) {
+      canvas.drawCircle(Offset(position.posX, position.posY),
+          position.getVisibleRadius().toDouble(), fill);
+    } else {
+      canvas.save();
+      canvas.translate(position.posX, position.posY);
+      canvas.rotate(position.rotation);
+      canvas.translate(-position.posX, -position.posY);
+      canvas.drawRect(
+          Rect.fromCenter(
+              center: Offset(position.posX, position.posY),
+              width: position.getVisibleWidth().toDouble(),
+              height: position.getVisibleHeight().toDouble()),
+          fill);
+      canvas.restore();
+    }
+  }
+
   void _drawRotationHandle(
       Canvas canvas, FilterPosition position, Color color) {
+    var dotRadius = (rotating ? 10 : 7) * pixelsInDP;
     var handle = position.getRotationHandlePosition(pixelsInDP);
     var line = Paint()
       ..color = color
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2;
     canvas.drawLine(position.getRotationStemStart(), handle, line);
-    canvas.drawCircle(handle, 5 * pixelsInDP, Paint()..color = color);
+    canvas.drawCircle(handle, dotRadius, Paint()..color = color);
     canvas.drawCircle(
         handle,
-        5 * pixelsInDP,
+        dotRadius,
         Paint()
           ..color = Colors.white54
           ..style = PaintingStyle.stroke
@@ -115,6 +145,9 @@ class ShapePainter extends CustomPainter {
           index == selectedPosition ? AppTheme.primaryColor : Colors.black;
       var colorBorderInner =
           index == selectedPosition ? AppTheme.primaryColor : Colors.grey;
+      if (index == selectedPosition) {
+        _drawSelectionFill(canvas, position);
+      }
       if (position.isRounded) {
         _drawCircle(canvas, position.posX, position.posY, radius, colorBorder);
         _drawCircle(
@@ -142,7 +175,9 @@ class ShapePainter extends CustomPainter {
       }
       if (index == selectedPosition) {
         _drawDragRect(
-            canvas, position.getResizingAreaRect(pixelsInDP), colorBorder);
+            canvas,
+            position.getResizingAreaRect(pixelsInDP * (resizing ? 1.5 : 1)),
+            colorBorder);
         // circles have no corners, so rotating them makes no sense
         if (!position.isRounded) {
           _drawRotationHandle(canvas, position, colorBorder);

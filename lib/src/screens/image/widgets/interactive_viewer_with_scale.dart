@@ -9,6 +9,8 @@ import 'package:privacyblur/src/utils/image_filter/helpers/filter_result.dart';
 import 'painter_image.dart';
 import 'painter_shape.dart';
 
+enum _Handle { none, resize, rotate }
+
 class InteractiveViewerWithScale extends StatefulWidget {
   final TransformationController controller;
   final double minScale;
@@ -56,6 +58,14 @@ class _InteractiveViewerWithScaleState
   /// start of a press-and-hold, so the shape doesn't jump to the finger
   Offset _grabOffset = Offset.zero;
 
+  /// handle held down by the finger, drawn bigger while dragging
+  _Handle _pressedHandle = _Handle.none;
+
+  void _setPressed(_Handle handle) {
+    if (_pressedHandle == handle) return;
+    setState(() => _pressedHandle = handle);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -78,6 +88,8 @@ class _InteractiveViewerWithScaleState
         onTapUp: onTapPosition,
         onLongPressMoveUpdate: onLongMove,
         onLongPressStart: onLongPressStart,
+        onLongPressEnd: (_) => _setPressed(_Handle.none),
+        onLongPressCancel: () => _setPressed(_Handle.none),
         child: InteractiveViewer(
             transformationController: widget.controller,
             maxScale: widget.maxScale,
@@ -96,7 +108,9 @@ class _InteractiveViewerWithScaleState
                   willChange: true,
                   painter: ImgPainter(widget.image),
                   foregroundPainter: ShapePainter(widget.extState.positions,
-                      widget.extState.selectedFilterIndex, imgPixelsInDP),
+                      widget.extState.selectedFilterIndex, imgPixelsInDP,
+                      resizing: _pressedHandle == _Handle.resize,
+                      rotating: _pressedHandle == _Handle.rotate),
                 ))));
   }
 
@@ -147,10 +161,12 @@ class _InteractiveViewerWithScaleState
           curFilter
               .getRotationHandleClickRect(imgPixelsInDP)
               .contains(offset)) {
+        _setPressed(_Handle.rotate);
         widget.rotateFilter(offset.dx, offset.dy);
         return; //rotating, don't change selected index
       }
       if ((curFilter != null) && _detectDragAreaClick(offset, curFilter)) {
+        _setPressed(_Handle.resize);
         widget.changeTopRightOffset(offset.dx, offset.dy);
         return; //if we in resize mode, don't change selected index
       }
