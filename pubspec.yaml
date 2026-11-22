@@ -30,7 +30,6 @@ dependencies:
   bloc: ^9.2.1
   flutter_bloc: ^9.1.1
   shared_preferences: ^2.0.5
-  flutter_translate: ^3.0.1
   flutter_styled_toast: ^2.0.0
   image_size_getter: ^2.4.1
   flutter_exif_rotation: ^0.5.2
@@ -44,6 +43,7 @@ dependencies:
   desktop_window: ^0.4.0
   file_picker: ^13.4.0
   gal: ^3.0.1
+  easy_localization: ^3.0.8
 
 dev_dependencies:
   flutter_test:

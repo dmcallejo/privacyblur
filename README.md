@@ -315,16 +315,15 @@ The app is translated into:
 Translations live inside the ``lib/resources/i18n`` directory.
 To add new languages you need to do the following:
 
-- add lang code to supported languages
+- add the locale to `supportedLocales` in `lib/src/constants.dart`
 ````dart
-  var delegate = await LocalizationDelegate.create(
-      ...
-      supportedLocales: [..., '<language_code>']);
+const List<Locale> supportedLocales = [..., Locale('<language_code>')];
 ````
 
-- add json file for lang code in ```lib/resources/i18n/<lang_code>.json```
+- add a json file named after the locale in ```lib/resources/i18n/<lang_code>.json```
+  (or ```<lang_code>-<COUNTRY_CODE>.json```, for example ``zh-TW.json``)
 - copy structure from an existing .json file
-- As soon as new texts are added, the new keys need to be generated. Run: flutter ``flutter pub run build_runner build --delete-conflicting-outputs``
+- As soon as new texts are added, add the matching key constants to `lib/resources/localization/keys.dart` by hand (for example ``main_screen.title`` becomes ``Main_Screen_Title``)
 
 
 ## Theme
@@ -451,8 +450,7 @@ The application runs in sound null safety. Consequently, all dependencies added 
 - flutter_bloc: flutter additional features for dart bloc library
 - mockito: used for mocks in testing
 - bloc_test: used for testing blocs
-- flutter_translate: adding i18n to the app
-- flutter_translate_gen: used to generate variables for static usage of translations
+- easy_localization: adding i18n to the app
 
 ---
 
