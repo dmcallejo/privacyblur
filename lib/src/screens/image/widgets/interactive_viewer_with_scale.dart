@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:privacyblur/src/screens/image/helpers/image_states.dart';
 import 'package:privacyblur/src/screens/image/utils/filter_position.dart';
@@ -7,6 +8,8 @@ import 'package:privacyblur/src/utils/image_filter/helpers/filter_result.dart';
 
 import 'painter_image.dart';
 import 'painter_shape.dart';
+
+enum _Handle { none, resize, rotate }
 
 class InteractiveViewerWithScale extends StatefulWidget {
   final TransformationController controller;
@@ -51,6 +54,18 @@ class _InteractiveViewerWithScaleState
   double devicePixelsInDP = 1.0;
   late final void Function() listenerCallback = _calculateScaleUpdate;
 
+  /// distance between the finger and the center of the moved shape at the
+  /// start of a press-and-hold, so the shape doesn't jump to the finger
+  Offset _grabOffset = Offset.zero;
+
+  /// handle held down by the finger, drawn bigger while dragging
+  _Handle _pressedHandle = _Handle.none;
+
+  void _setPressed(_Handle handle) {
+    if (_pressedHandle == handle) return;
+    setState(() => _pressedHandle = handle);
+  }
+
   @override
   void initState() {
     super.initState();
@@ -73,6 +88,8 @@ class _InteractiveViewerWithScaleState
         onTapUp: onTapPosition,
         onLongPressMoveUpdate: onLongMove,
         onLongPressStart: onLongPressStart,
+        onLongPressEnd: (_) => _setPressed(_Handle.none),
+        onLongPressCancel: () => _setPressed(_Handle.none),
         child: InteractiveViewer(
             transformationController: widget.controller,
             maxScale: widget.maxScale,
@@ -91,7 +108,9 @@ class _InteractiveViewerWithScaleState
                   willChange: true,
                   painter: ImgPainter(widget.image),
                   foregroundPainter: ShapePainter(widget.extState.positions,
-                      widget.extState.selectedFilterIndex, imgPixelsInDP),
+                      widget.extState.selectedFilterIndex, imgPixelsInDP,
+                      resizing: _pressedHandle == _Handle.resize,
+                      rotating: _pressedHandle == _Handle.rotate),
                 ))));
   }
 
@@ -101,8 +120,10 @@ class _InteractiveViewerWithScaleState
     );
     var selected = _detectSelectedFilter(offset);
     if (selected >= 0) {
+      HapticFeedback.selectionClick();
       widget.selectFilter(selected);
     } else {
+      HapticFeedback.selectionClick();
       widget.addFilterPosition(offset.dx, offset.dy);
     }
   }
@@ -120,7 +141,8 @@ class _InteractiveViewerWithScaleState
       return;
     }
     if (widget.extState.hasSelection) {
-      widget.moveFilterPosition(offset.dx, offset.dy);
+      widget.moveFilterPosition(
+          offset.dx - _grabOffset.dx, offset.dy - _grabOffset.dy);
       return;
     }
   }
@@ -129,6 +151,8 @@ class _InteractiveViewerWithScaleState
     Offset offset = widget.controller.toScene(
       details.localPosition,
     );
+    _grabOffset = Offset.zero;
+    HapticFeedback.lightImpact(); // the hold registered, drag now
     int curIndex = widget.extState.selectedFilterIndex;
     if (curIndex > -1) {
       var curFilter = widget.extState.getSelectedPosition();
@@ -137,13 +161,12 @@ class _InteractiveViewerWithScaleState
           curFilter
               .getRotationHandleClickRect(imgPixelsInDP)
               .contains(offset)) {
+        _setPressed(_Handle.rotate);
         widget.rotateFilter(offset.dx, offset.dy);
         return; //rotating, don't change selected index
       }
-      if ((curFilter != null) &&
-          (!curFilter
-              .isRounded) && // for resizing circles just remove this condition
-          _detectDragAreaClick(offset, curFilter)) {
+      if ((curFilter != null) && _detectDragAreaClick(offset, curFilter)) {
+        _setPressed(_Handle.resize);
         widget.changeTopRightOffset(offset.dx, offset.dy);
         return; //if we in resize mode, don't change selected index
       }
@@ -151,7 +174,10 @@ class _InteractiveViewerWithScaleState
     var selected = _detectSelectedFilter(offset);
     widget.selectFilter(selected);
     if (selected >= 0) {
-      widget.moveFilterPosition(offset.dx, offset.dy);
+      var picked = widget.extState.positions[selected];
+      _grabOffset = Offset(offset.dx - picked.posX, offset.dy - picked.posY);
+      widget.moveFilterPosition(
+          offset.dx - _grabOffset.dx, offset.dy - _grabOffset.dy);
     }
   }
 

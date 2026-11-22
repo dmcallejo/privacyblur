@@ -25,8 +25,8 @@ class FilterPosition {
   static const _startAngle = -pi / 4; //bottom right point
   static final double _sSin = sin(_startAngle);
   static final double _sCos = cos(_startAngle);
-  static const _resizeBlockSize = 8; //dp//lp
-  static const _resizeClickSize = 32; //dp//lp
+  static const _resizeBlockSize = 12; //dp//lp
+  static const _resizeClickSize = 44; //dp//lp
   static const _rotateStemSize = 20; //dp//lp, distance of handle above top edge
   static const _rotateSnapStep = pi / 4; //snap to 0/45/90... degrees
   static const _rotateSnapTolerance = 3 * pi / 180;
@@ -190,6 +190,7 @@ class FilterPosition {
       var diffx = x2 - posX;
       var diffy = posY - y2;
       var dist = sqrt(pow(diffx, 2) + pow(diffy, 2));
+      if (dist == 0) return; // click exactly on the center, keep the angle
       _cos = diffx / dist;
       _sin = diffy / dist;
       /*_sCos = _cos; //we will not save this for new areas always new squares and circles

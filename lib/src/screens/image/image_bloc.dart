@@ -151,6 +151,7 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
       imageOperationsHelper.cancelCurrentFilters(position, _blocState);
       position.posX = event.x;
       position.posY = event.y;
+      _blocState.isImageSaved = false;
       _delayedApplyFilter();
       emit(_blocState.clone()); //needed
     }
@@ -264,6 +265,7 @@ class ImageBloc extends Bloc<ImageEventBase, ImageStateBase?> {
     if (position != null) {
       imageOperationsHelper.cancelCurrentFilters(position, _blocState);
       position.rebuildRadiusFromClick(event.x, event.y);
+      _blocState.isImageSaved = false;
       _delayedApplyFilter();
       emit(_blocState.clone());
     }
