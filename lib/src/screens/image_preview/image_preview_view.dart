@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_translate/flutter_translate.dart';
+import 'package:privacyblur/src/utils/translate.dart';
 import 'package:privacyblur/resources/localization/keys.dart';
 import 'package:privacyblur/src/di.dart';
 import 'package:privacyblur/src/router.dart';

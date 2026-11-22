@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:privacyblur/src/widgets/desktop_menu_host.dart';
 import 'package:flutter/services.dart';
 import 'package:privacyblur/src/widgets/scaled_wrapper.dart';
 
@@ -128,14 +129,16 @@ class ScaffoldWithAppBar {
         return await onBackPressed();
       },
       child: ScaledWrapper(
-        child: Scaffold(
-          appBar: _AppBarBuilder.build(
-              context: context,
-              leading: leading,
-              title: title,
-              actions: actions), //as ObstructingPreferredSizeWidget,
-          body: body,
-          floatingActionButton: floatingActionButton,
+        child: DesktopMenuHost(
+          child: Scaffold(
+            appBar: _AppBarBuilder.build(
+                context: context,
+                leading: leading,
+                title: title,
+                actions: actions), //as ObstructingPreferredSizeWidget,
+            body: body,
+            floatingActionButton: floatingActionButton,
+          ),
         ),
       ),
     );

@@ -1,3 +1,7 @@
+@Tags(['benchmark'])
+// Timing-based tests: results depend on the machine, so CI runs them separately.
+library;
+
 import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
@@ -134,14 +138,14 @@ void main() {
     print('-------------------------------------');
     print('-------------------------------------');
     var appFilterTime = diff;
-    img_external.Image extImageLib = img_external.Image.rgb(_width, _height);
+    img_external.Image extImageLib = img_external.Image(width: _width, height: _height);
     time1 = DateTime.now().millisecondsSinceEpoch;
 
     ///this library use a trick as fact they calculate only 2/3 of radius.
     ///bluring is not so powerfull as with linear bluring.
     ///to get same result radius must be in 3-4 times bigger
     ///but even with same block size it works in 7 times slower.
-    img_external.gaussianBlur(extImageLib, 250);
+    img_external.gaussianBlur(extImageLib, radius: 250);
     diff = DateTime.now().millisecondsSinceEpoch - time1;
     print('-------------------------------------');
     print('---------External Lib Time-----------');
@@ -181,9 +185,9 @@ void main() {
     print('-------------------------------------');
     print('-------------------------------------');
     var appFilterTime = diff;
-    img_external.Image extImageLib = img_external.Image.rgb(_width, _height);
+    img_external.Image extImageLib = img_external.Image(width: _width, height: _height);
     time1 = DateTime.now().millisecondsSinceEpoch;
-    img_external.pixelate(extImageLib, 500);
+    img_external.pixelate(extImageLib, size: 500);
     diff = DateTime.now().millisecondsSinceEpoch - time1;
     print('-------------------------------------');
     print('---------External Lib Time-----------');

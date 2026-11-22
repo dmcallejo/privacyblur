@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_translate/flutter_translate.dart';
+import 'package:privacyblur/src/utils/translate.dart';
 import 'package:privacyblur/resources/localization/keys.dart';
 import 'package:privacyblur/src/screens/image/utils/internal_layout.dart';
 import 'package:privacyblur/src/widgets/theme/icons_provider.dart';

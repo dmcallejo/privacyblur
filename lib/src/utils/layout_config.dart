@@ -27,7 +27,7 @@ class LayoutConfig {
   late bool isTablet;
   late bool isNeedSafeArea;
 
-  static DesktopWindowConfig get desktop => DesktopWindowConfig();
+  static final DesktopWindowConfig desktop = DesktopWindowConfig();
 
   LayoutConfig(BuildContext context) {
     _mediaQueryData = MediaQuery.of(context);

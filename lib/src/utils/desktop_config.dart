@@ -1,16 +1,44 @@
-import 'dart:io';
 
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_translate/flutter_translate.dart';
-import 'package:menubar/menubar.dart';
 import 'package:privacyblur/resources/localization/keys.dart';
 
 enum DESKTOP_LAYOUT_TYPE { small, large, regular }
 
+/// A single entry of a desktop menu. A [divider] has no label or action.
+///
+/// Labels are translation keys; they are translated when the menu is shown so
+/// that they follow the current locale.
+class DesktopMenuEntry {
+  final String label;
+  final VoidCallback? onSelected;
+  final SingleActivator? shortcut;
+  final bool divider;
+
+  const DesktopMenuEntry(
+      {required this.label, required this.onSelected, this.shortcut})
+      : divider = false;
+
+  const DesktopMenuEntry.divider()
+      : label = '',
+        onSelected = null,
+        shortcut = null,
+        divider = true;
+}
+
+class DesktopMenu {
+  final String label;
+  final List<DesktopMenuEntry> entries;
+
+  const DesktopMenu({required this.label, required this.entries});
+}
+
 class DesktopWindowConfig extends DesktopWindow {
   int? currentMenu;
+
+  /// Menus currently shown by [DesktopMenuHost].
+  final ValueNotifier<List<DesktopMenu>> menus = ValueNotifier([]);
 
   DesktopWindowConfig();
 
@@ -43,34 +71,38 @@ class DesktopWindowConfig extends DesktopWindow {
 
   /// ## MENU CONFIG ##
 
-  void updateMenu({required UniqueKey key, List<Submenu>? menus}) {
-    if (Platform.isWindows) return;
+  void updateMenu({required UniqueKey key, List<DesktopMenu>? extraMenus}) {
+    if (currentMenu == key.hashCode) return;
     currentMenu = key.hashCode;
-    setApplicationMenu([_layoutMenu, if (menus != null) ...menus]);
+    final newMenus = [_layoutMenu(), if (extraMenus != null) ...extraMenus];
+    // Menus are usually requested while building, so publish after the frame.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (currentMenu == key.hashCode) menus.value = newMenus;
+    });
   }
 
-  final Submenu _layoutMenu =
-      Submenu(label: translate(Keys.Layout_Configs_Layout), children: [
-    MenuItem(
-      label: translate(Keys.Layout_Configs_Fullscreen),
-      onClicked: () => toggleFullScreen(),
-      shortcut: LogicalKeySet(LogicalKeyboardKey.f11),
-    ),
-    MenuItem(
-      label: translate(Keys.Layout_Configs_Large),
-      onClicked: () => setWindowSize(size: DESKTOP_LAYOUT_TYPE.large),
-      shortcut: LogicalKeySet(LogicalKeyboardKey.keyL),
-    ),
-    MenuItem(
-      label: translate(Keys.Layout_Configs_Small),
-      onClicked: () => setWindowSize(size: DESKTOP_LAYOUT_TYPE.small),
-      shortcut: LogicalKeySet(LogicalKeyboardKey.keyS),
-    ),
-    const MenuDivider(),
-    MenuItem(
-      label: translate(Keys.Layout_Configs_Regular),
-      onClicked: () => setWindowSize(size: DESKTOP_LAYOUT_TYPE.regular),
-      shortcut: LogicalKeySet(LogicalKeyboardKey.keyZ),
-    )
-  ]);
+  DesktopMenu _layoutMenu() =>
+      DesktopMenu(label: Keys.Layout_Configs_Layout, entries: [
+        DesktopMenuEntry(
+          label: Keys.Layout_Configs_Fullscreen,
+          onSelected: () => toggleFullScreen(),
+          shortcut: const SingleActivator(LogicalKeyboardKey.f11),
+        ),
+        DesktopMenuEntry(
+          label: Keys.Layout_Configs_Large,
+          onSelected: () => setWindowSize(size: DESKTOP_LAYOUT_TYPE.large),
+          shortcut: const SingleActivator(LogicalKeyboardKey.keyL),
+        ),
+        DesktopMenuEntry(
+          label: Keys.Layout_Configs_Small,
+          onSelected: () => setWindowSize(size: DESKTOP_LAYOUT_TYPE.small),
+          shortcut: const SingleActivator(LogicalKeyboardKey.keyS),
+        ),
+        const DesktopMenuEntry.divider(),
+        DesktopMenuEntry(
+          label: Keys.Layout_Configs_Regular,
+          onSelected: () => setWindowSize(size: DESKTOP_LAYOUT_TYPE.regular),
+          shortcut: const SingleActivator(LogicalKeyboardKey.keyZ),
+        ),
+      ]);
 }

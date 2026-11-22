@@ -41,32 +41,33 @@ class ImagePicking extends ImagePicker {
   Future<File?> pickFile(ImageSource type) async {
     File? resultFile;
     if (AppTheme.isDesktop) {
-      FilePickerResult? pickResult = await FilePicker.platform.pickFiles(
+      PlatformFile? pickResult = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: allowedExtensions,
       );
-      if (pickResult != null) resultFile = File(pickResult.files.single.path!);
+      if (pickResult?.path != null) resultFile = File(pickResult!.path!);
     } else {
-      PickedFile? pickResult;
-      pickResult = await getImage(source: type);
+      XFile? pickResult = await pickImage(source: type);
       if (pickResult != null) resultFile = File(pickResult.path);
     }
     return resultFile;
   }
 
   Future<String?> saveFile(File file) async {
-    String? selectedDirectory = await FilePicker.platform.getDirectoryPath();
+    String? selectedDirectory = await FilePicker.getDirectoryPath();
     String fileName =
         "blur-" + DateTime.now().millisecondsSinceEpoch.toString();
     if (selectedDirectory != null) {
       try {
         await file.copy('$selectedDirectory/$fileName');
+        return '$selectedDirectory/$fileName';
       } catch (err) {
         if (kDebugMode) {
           print(err.toString());
         }
       }
     }
+    return null;
   }
 
   void updatePermissionState() async {

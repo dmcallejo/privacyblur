@@ -1,5 +1,5 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter_translate/flutter_translate.dart';
 
 import 'app.dart';
 import 'constants.dart';
@@ -9,8 +9,7 @@ import 'utils/layout_config.dart';
 import 'widgets/theme/theme_provider.dart';
 
 class AppContainer {
-  LocalizationDelegate? _localizationDelegate;
-  LocalizedApp? _app;
+  Widget? _app;
 
   late DependencyInjection _di;
   late ScreenNavigator _navigator;
@@ -28,25 +27,16 @@ class AppContainer {
     _router = AppRouter.fromMainScreen(_navigator, _di);
   }
 
-  Future<LocalizedApp> get app async {
-    await _createLocalizedAppConfig();
-    _createLocalizedApp();
-    return _app!;
-  }
-
-  Future _createLocalizedAppConfig() async {
-    if (_localizationDelegate != null) return;
-    _localizationDelegate = await LocalizationDelegate.create(
-        basePath: localizationResourcesPath + "/",
+  Future<Widget> get app async {
+    if (_app != null) return _app!;
+    await EasyLocalization.ensureInitialized();
+    if (AppTheme.isDesktop) _setupDesktopConfigs();
+    _app = EasyLocalization(
+        path: localizationResourcesPath,
         fallbackLocale: defaultLocale,
-        supportedLocales: ['en_US', 'de', 'zh_TW']);
-    if(AppTheme.isDesktop) _setupDesktopConfigs();
-    return;
-  }
-
-  void _createLocalizedApp() {
-    if (_app != null) return;
-    _app = LocalizedApp(_localizationDelegate!, PixelMonsterApp(_router));
+        supportedLocales: supportedLocales,
+        child: PixelMonsterApp(_router));
+    return _app!;
   }
 
   void _setupDesktopConfigs() {

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_translate/flutter_translate.dart';
+import 'package:privacyblur/src/utils/translate.dart';
 import 'package:privacyblur/resources/localization/keys.dart';
 import 'package:privacyblur/src/screens/image/helpers/image_states.dart';
 import 'package:privacyblur/src/screens/image/utils/internal_layout.dart';
@@ -149,7 +149,7 @@ class ImageToolsWidget extends StatelessWidget {
     return SizedBox(
       height: _internalLayout.iconSize * 2,
       child: Scrollbar(
-        isAlwaysShown: false,
+        thumbVisibility: false,
         child: ListView(
           shrinkWrap: true,
           scrollDirection: Axis.horizontal,
