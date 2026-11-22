@@ -18,6 +18,7 @@ class ImageViewer extends StatelessWidget {
   final void Function(double, double) addFilterPosition;
   final void Function(double, double) changeTopRightOffset;
   final void Function(int) selectFilter;
+  final void Function(double, double) rotateFilter;
   late TransformationController _transformationController;
   final double maxScale = 10;
 
@@ -31,6 +32,7 @@ class ImageViewer extends StatelessWidget {
       this.addFilterPosition,
       this.changeTopRightOffset,
       this.selectFilter,
+      this.rotateFilter,
       {Key? key})
       : super(key: key);
 
@@ -65,6 +67,7 @@ class ImageViewer extends StatelessWidget {
         addFilterPosition,
         changeTopRightOffset,
         selectFilter,
+        rotateFilter,
       ),
       InteractiveViewerScrollBars(
           controller: _transformationController,

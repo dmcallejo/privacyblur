@@ -21,6 +21,7 @@ class InteractiveViewerWithScale extends StatefulWidget {
   final void Function(double, double) addFilterPosition;
   final void Function(double, double) changeTopRightOffset;
   final void Function(int) selectFilter;
+  final void Function(double, double) rotateFilter;
 
   const InteractiveViewerWithScale(
       this.image,
@@ -35,6 +36,7 @@ class InteractiveViewerWithScale extends StatefulWidget {
       this.addFilterPosition,
       this.changeTopRightOffset,
       this.selectFilter,
+      this.rotateFilter,
       {Key? key})
       : super(key: key);
 
@@ -109,6 +111,10 @@ class _InteractiveViewerWithScaleState
     Offset offset = widget.controller.toScene(
       details.localPosition,
     );
+    if (widget.extState.rotateFilterMode) {
+      widget.rotateFilter(offset.dx, offset.dy);
+      return;
+    }
     if (widget.extState.resizeFilterMode) {
       widget.changeTopRightOffset(offset.dx, offset.dy);
       return;
@@ -126,6 +132,14 @@ class _InteractiveViewerWithScaleState
     int curIndex = widget.extState.selectedFilterIndex;
     if (curIndex > -1) {
       var curFilter = widget.extState.getSelectedPosition();
+      if ((curFilter != null) &&
+          (!curFilter.isRounded) &&
+          curFilter
+              .getRotationHandleClickRect(imgPixelsInDP)
+              .contains(offset)) {
+        widget.rotateFilter(offset.dx, offset.dy);
+        return; //rotating, don't change selected index
+      }
       if ((curFilter != null) &&
           (!curFilter
               .isRounded) && // for resizing circles just remove this condition

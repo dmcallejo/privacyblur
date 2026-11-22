@@ -20,7 +20,8 @@ class ImageOperationsHelper {
           position.posX.toInt(), position.posY.toInt(), position.getVisibleRadius());
     } else {
       imageFilter.cancelSquare(position.posX.toInt(), position.posY.toInt(),
-          position.getVisibleWidth(), position.getVisibleHeight());
+          position.getVisibleWidth(), position.getVisibleHeight(),
+          position.rotation);
     }
   }
 
@@ -51,7 +52,8 @@ class ImageOperationsHelper {
               position.posX.toInt(), position.posY.toInt(), position.getVisibleRadius());
         } else {
           imageFilter.apply2Square(position.posX.toInt(), position.posY.toInt(),
-              position.getVisibleWidth(), position.getVisibleHeight());
+              position.getVisibleWidth(), position.getVisibleHeight(),
+          position.rotation);
         }
         position.canceled = false;
         position.forceRedraw = false;
