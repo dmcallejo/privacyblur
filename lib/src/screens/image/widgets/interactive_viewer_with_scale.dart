@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:privacyblur/src/screens/image/helpers/image_states.dart';
 import 'package:privacyblur/src/screens/image/utils/filter_position.dart';
@@ -51,6 +52,10 @@ class _InteractiveViewerWithScaleState
   double devicePixelsInDP = 1.0;
   late final void Function() listenerCallback = _calculateScaleUpdate;
 
+  /// distance between the finger and the center of the moved shape at the
+  /// start of a press-and-hold, so the shape doesn't jump to the finger
+  Offset _grabOffset = Offset.zero;
+
   @override
   void initState() {
     super.initState();
@@ -101,8 +106,10 @@ class _InteractiveViewerWithScaleState
     );
     var selected = _detectSelectedFilter(offset);
     if (selected >= 0) {
+      HapticFeedback.selectionClick();
       widget.selectFilter(selected);
     } else {
+      HapticFeedback.selectionClick();
       widget.addFilterPosition(offset.dx, offset.dy);
     }
   }
@@ -120,7 +127,8 @@ class _InteractiveViewerWithScaleState
       return;
     }
     if (widget.extState.hasSelection) {
-      widget.moveFilterPosition(offset.dx, offset.dy);
+      widget.moveFilterPosition(
+          offset.dx - _grabOffset.dx, offset.dy - _grabOffset.dy);
       return;
     }
   }
@@ -129,6 +137,8 @@ class _InteractiveViewerWithScaleState
     Offset offset = widget.controller.toScene(
       details.localPosition,
     );
+    _grabOffset = Offset.zero;
+    HapticFeedback.lightImpact(); // the hold registered, drag now
     int curIndex = widget.extState.selectedFilterIndex;
     if (curIndex > -1) {
       var curFilter = widget.extState.getSelectedPosition();
@@ -140,10 +150,7 @@ class _InteractiveViewerWithScaleState
         widget.rotateFilter(offset.dx, offset.dy);
         return; //rotating, don't change selected index
       }
-      if ((curFilter != null) &&
-          (!curFilter
-              .isRounded) && // for resizing circles just remove this condition
-          _detectDragAreaClick(offset, curFilter)) {
+      if ((curFilter != null) && _detectDragAreaClick(offset, curFilter)) {
         widget.changeTopRightOffset(offset.dx, offset.dy);
         return; //if we in resize mode, don't change selected index
       }
@@ -151,7 +158,10 @@ class _InteractiveViewerWithScaleState
     var selected = _detectSelectedFilter(offset);
     widget.selectFilter(selected);
     if (selected >= 0) {
-      widget.moveFilterPosition(offset.dx, offset.dy);
+      var picked = widget.extState.positions[selected];
+      _grabOffset = Offset(offset.dx - picked.posX, offset.dy - picked.posY);
+      widget.moveFilterPosition(
+          offset.dx - _grabOffset.dx, offset.dy - _grabOffset.dy);
     }
   }
 

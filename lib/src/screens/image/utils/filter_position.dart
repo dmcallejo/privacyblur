@@ -190,6 +190,7 @@ class FilterPosition {
       var diffx = x2 - posX;
       var diffy = posY - y2;
       var dist = sqrt(pow(diffx, 2) + pow(diffy, 2));
+      if (dist == 0) return; // click exactly on the center, keep the angle
       _cos = diffx / dist;
       _sin = diffy / dist;
       /*_sCos = _cos; //we will not save this for new areas always new squares and circles

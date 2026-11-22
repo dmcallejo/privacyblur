@@ -140,11 +140,13 @@ class ShapePainter extends CustomPainter {
             colorBorderInner);
         canvas.restore();
       }
-      // for resizing circles just remove this condition - (!position.isRounded)
-      if ((!position.isRounded) && (index == selectedPosition)) {
+      if (index == selectedPosition) {
         _drawDragRect(
             canvas, position.getResizingAreaRect(pixelsInDP), colorBorder);
-        _drawRotationHandle(canvas, position, colorBorder);
+        // circles have no corners, so rotating them makes no sense
+        if (!position.isRounded) {
+          _drawRotationHandle(canvas, position, colorBorder);
+        }
       }
     });
     if (selectedPosition < 0 || selectedPosition >= positions.length) {
